@@ -1,0 +1,111 @@
+ScreenManager:
+    Main_info:
+    sub_new_activity:
+
+
+
+<Main_info>: 
+    name:'MainInfo'
+    screen_manager: self.screen_manager
+    FloatLayout:
+        orientation:'vertical'
+        BoxLayout
+            orientation:'vertical'
+            MDLabel
+                text:'Main Screen'
+
+                height:30
+
+            ScrollView:
+                orientation:'vertical'
+                MDList:
+                    MDCard:
+                        size_hint:None,None
+                        size:"280dp","180dp"
+                        pos_hint:{"center_x":0.5,"center_y": 0.5}
+                        MDLabel:
+                            text:"Card potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+                    OneLineListItem:
+                        text:"potato"
+        MDFloatingActionButtonSpeedDial:
+            data: app.data
+            rotation_root_button: True
+            right_pad:True
+            hint_animation:True
+            callback:app.Add_callback
+
+
+<sub_new_activity>:
+    screen_manager: self.screen_manager
+    name:'subNewActivity'
+    MDLabel:
+        text:'Add new activity'
+        color:0,0,0,1
+    MDRectangleFlatButton
+        text:'back'
+        pos_hint: {'center_x': 0.5,'center_y': 0.5}
+        on_press:
+            root.return_to_main()
+
