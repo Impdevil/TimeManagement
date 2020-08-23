@@ -1,93 +1,43 @@
+
+
 ScreenManager:
     Main_info:
     sub_new_activity:
 
 
 
+
 <Main_info>: 
     name:'MainInfo'
+    id:Main_info
     screen_manager: self.screen_manager
     FloatLayout:
+        id:floating
         orientation:'vertical'
         BoxLayout
+            id:boxes
             orientation:'vertical'
-            MDLabel
-                text:'Main Screen'
-
+            MDToolbar:
                 height:30
+                MDLabel:
+                    id:ToolBar_title
+                    text:'TimeLine'
+                    font_style:"H5"
+                    halign:"right"
 
+            MDCard:
+                size_hint:None,None
+                size:"280dp","200dp"
+                pos_hint:{"center_x":0.5,"center_y": 0.5}
+                MDLabel:
+                    text:"Card potato"
             ScrollView:
+                id:scrollingboxes
                 orientation:'vertical'
                 MDList:
-                    MDCard:
-                        size_hint:None,None
-                        size:"280dp","180dp"
-                        pos_hint:{"center_x":0.5,"center_y": 0.5}
-                        MDLabel:
-                            text:"Card potato"
+                    id:past_items
                     OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
-                        text:"potato"
-                    OneLineListItem:
+                        id:tester
                         text:"potato"
         MDFloatingActionButtonSpeedDial:
             data: app.data
@@ -100,12 +50,21 @@ ScreenManager:
 <sub_new_activity>:
     screen_manager: self.screen_manager
     name:'subNewActivity'
-    MDLabel:
-        text:'Add new activity'
-        color:0,0,0,1
-    MDRectangleFlatButton
-        text:'back'
-        pos_hint: {'center_x': 0.5,'center_y': 0.5}
-        on_press:
-            root.return_to_main()
+    BoxLayout: 
+        orientation:"vertical"
+        MDToolbar:
+            height:30
+            MDLabel:
+                id:ToolBar_title
+                text:'start timing activity'
+                font_style:"H5"
+                halign:"right"
+        MDLabel:
+            text:'Add new activity'
+            color:0,0,0,1
+        MDRectangleFlatButton
+            text:'back'
+            pos_hint: {'center_x': 0.5,'center_y': 0.5}
+            on_press:
+                root.return_to_main()
 
