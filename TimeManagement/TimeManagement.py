@@ -1,52 +1,78 @@
 from kivymd.app import MDApp
 from kivymd.uix.label import Label
 from kivymd.uix.button import MDRectangleFlatButton, MDFloatingActionButtonSpeedDial
-from kivy.uix.screenmanager import Screen, ScreenManager
-from kivymd.uix.list import OneLineListItem, MDList
+from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition,SwapTransition
+from kivymd.uix.list import ThreeLineListItem, MDList
 #from kivy.properties import StringProperty, ObjectProperty
 from kivy.lang import Builder
 from kivy.clock import Clock
-
-
-
+import datetime
 
 
 
 class Main_info(Screen):
-    #name = StringProperty("MainInfo")
-    
 
-    
-    
     def __init__(self, **kwargs):
         super(Main_info,self).__init__(**kwargs)
 
-        self.testdata = [dict() for x in range(4)]    
-        self.testdata[0] = {"type":"programming","timeSpent":"", "date":"22/08/2020", "timeStart":"6:10", "timeEnd":"22:00", "project":""}
-        self.testdata[1] =  {"type":"programming","timeSpent":"","date":"21/08/2020", "timeStart":"6:10", "timeEnd":"22:00", "project":""}
- 
-        Clock.schedule_once(self.update_Timeline,0.5)
-    
+
+
     
     def uxids_dict_add(self,uxobjects):
         print (self.name + " uxObjects " + str(uxobjects))
+        self.avalible_screens = uxobjects
+        Clock.schedule_once(self.Init_TimeLine,1)
+
+    def Init_TimeLine(self, dt):
+        self.testdata = [dict() for x in range(2)]    
+        self.testdata[0] = {"name": "test 1", "type":"programming","timeSpent":"08:30:00", "date":"22/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
+        self.testdata[1] = {"name": "test 2","type":"programming","timeSpent":"08:30:00", "date":"21/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
+
+        self.update_Timeline(dt,None)
+
+
+    def update_Timeline(self,dt, new_data):
         
-        
-    def update_Timeline(self,dt):
         print("updating timeline @ " + str(dt))
+        #try:
+        if new_data != None:
+            print(str(self.testdata) + " | new data :"  + str(new_data))
+            addingData = {"name" : new_data["name"], "type": new_data["type"],"project": new_data["project"],"date":new_data["date"], "timeStart":new_data["timeStart"],"timeEnd":datetime.time, "timeSpent":new_data["timeSpent"]}
+            print(str(addingData) + " || added too"+str(self.testdata))
+            self.testdata.append(addingData)
+        else:
+            print("no new data")
+        #if self.parent.parent.ids.get("past_items") == True:
+        listedItems = self.ids.past_items
+        listedItems.clear_widgets()
+        for i in self.testdata:
+            listedItems.add_widget(ThreeLineListItem(text=(str(i["name"]) + " | timespent: " + str(i["timeSpent"])),
+                secondary_text=("type: "+ i["type"]+" | date: "+ str(i["date"]) + "| start time: " + i["timeStart"] ),
+                tertiary_text=("Project: " + i["project"])))
+            print(i)
 
-        self.ids.tester.text= "have i succeeded"
-        self.listedItems = self.ids.past_items
-        self.listedItems.add_widget(OneLineListItem(text="potato 101"))
-    # def on_kv_post(self):
-    #     super(Main_info,self).on_kv_post()
-    #     for i in range(20):
-    #         self.ids.floating.boxes.scrollingboxes.past_items.add_widget(OneLineListItem(text="potato" + i))
+            #else: 
+            #Clock.schedule_once(self.update_Timeline,5)
+            #print("clockin")
+        #except:
+            #print("failed to load ids wtf")
 
-
+    ##Button Definition
+    data = {'timeline-plus-outline' : 'New activity',"timeline-clock-outline": "add past activity"}
+    def Add_callback(self,instance):
+        print(instance.icon)
+        global screens
+        
+        if instance.icon == "timeline-plus-outline":
+            self.parent.switch_to(screens[1])
+        if instance.icon == "timeline-clock-outline":
+            #self.parent.switch_to(screens[2])
+            print("not implemeneted yet")
 
 
 class sub_new_activity(Screen):
+    def __init__(self, **kwargs):
+        super(sub_new_activity,self).__init__(**kwargs)
 
     def return_to_main(self):
         print("back")
@@ -56,29 +82,85 @@ class sub_new_activity(Screen):
         
     def uxids_dict_add(self,uxobjects):
         print (self.name + " uxObjects " + str(uxobjects))
+        self.avalible_screens = uxobjects
+
+    def start_timer(self):
+        timeStart = datetime.datetime.now()
+        dateStart = timeStart.strftime("%d/%m/%Y")
+        timeStart = timeStart.strftime("%H:%M")
+        activityDict = {"name":self.ids.TF_Name.text,"project":self.ids.TF_ProjectName.text,"type":self.ids.TF_WorkType.text,"timeSpent" : "","timeStart":str(timeStart), "date": str(dateStart)}
+        print("Start" + str(activityDict))
+        self.parent.switch_to(screens[2],transition=SwapTransition(),direction="right")
+        self.avalible_screens[2].Start_Timer(activityDict)
+        
 
 
+class activity_timer(Screen):
+    curr_pauseState = True
+    timer = 0
+    def __init__(self, **kwargs):
+        super(activity_timer,self).__init__(**kwargs)
+
+
+    def return_to_main(self):
+        print("back")
+        print("2current Screen: " + str(self.parent.current_screen) + " | has the next screen? " +str(self.parent.has_screen("subNewActivity")))
+        self.parent.switch_to(screens[0])
+        print("3current Screen: " + str(self.parent.current_screen) + " | has the next screen? " +str(self.parent.has_screen("subNewActivity")))
+
+    def uxids_dict_add(self,uxobjects):
+        print (self.name + " uxObjects " + str(uxobjects))
+        self.ids.pausePlay.icon = "pause-circle-outline"
+        self.avalibleScreens = uxobjects
+
+
+    def Start_Timer(self,activity_dict):
+        self.timer = 0
+        self.currPauseState = False
+        self.clockEvent = Clock.schedule_interval(self.Run_Timer,0.25)
+        self.activityDict = activity_dict
+
+    def Run_Timer(self, dt):
+        if self.currPauseState != True:
+            self.timer += dt
+
+            print(datetime.timedelta(0,self.timer))
+            display = int(self.timer)
+            self.ids.timer_Display.text = str(datetime.timedelta(0,display))
+        else:
+            print("paused")
+        
+
+    def toggle_Pause_State(self):
+        if self.ids.pausePlay.icon == "pause-circle-outline":
+            self.currPauseState = True
+            self.ids.pausePlay.icon = "play-circle-outline"
+            print("paused")
+        elif self.ids.pausePlay.icon == "play-circle-outline":
+            self.currPauseState = False
+            self.ids.pausePlay.icon = "pause-circle-outline"
+            print("playing")
+
+    def save_activity(self):
+        print("potato")
+        self.currPauseState = True
+        self.clockEvent.cancel()
+        self.activityDict["timeSpent"] = str(datetime.timedelta(0,int(self.timer)))
+        self.avalibleScreens[0].update_Timeline(0,self.activityDict)
+
+        self.parent.switch_to(screens[0])
+        
 
 class Main(MDApp):
 
-    data = {'timeline-plus-outline' : 'New activity',}
-
-
-    def Add_callback(self,instance):
-        print("\"Add to\" Screen")
-        global screens
-        
-        self.sm.switch_to(screens[1])
-
-    
     def build(self):
         global screens
         Builder.load_file("tmlayout.kv")
-        self.sm = ScreenManager()
+        self.sm = ScreenManager(transition=NoTransition())
         screens = list()
         screens.append(Main_info(name="MainInfo"))
         screens.append(sub_new_activity(name="subNewActivity"))
-        
+        screens.append(activity_timer(name="activitytimer"))
         for i in range(len(screens)):
             self.sm.add_widget(screens[i])
             screens[i].uxids_dict_add(screens)

@@ -1,9 +1,8 @@
 
-
 ScreenManager:
     Main_info:
     sub_new_activity:
-
+    activity_timer:
 
 
 
@@ -36,15 +35,12 @@ ScreenManager:
                 orientation:'vertical'
                 MDList:
                     id:past_items
-                    OneLineListItem:
-                        id:tester
-                        text:"potato"
         MDFloatingActionButtonSpeedDial:
-            data: app.data
+            data: root.data
             rotation_root_button: True
             right_pad:True
             hint_animation:True
-            callback:app.Add_callback
+            callback:root.Add_callback
 
 
 <sub_new_activity>:
@@ -62,9 +58,51 @@ ScreenManager:
         MDLabel:
             text:'Add new activity'
             color:0,0,0,1
+
+        MDTextField:
+            hint_text:"Work Focus Name"
+            id: TF_Name
+        MDTextField:
+            hint_text:"Project Name"
+            id:TF_ProjectName
+        MDTextField:
+            id:TF_WorkType
+            hint_text:"Work Type"
+        MDIconButton:
+            icon:"play-circle-outline"
+            user_font_size:"128sp"
+            pos_hint:{"center_x":0.5,"center_y":0.55}
+            on_press:
+                root.start_timer()
         MDRectangleFlatButton
             text:'back'
-            pos_hint: {'center_x': 0.5,'center_y': 0.5}
+            pos_hint: {'right': 1,'center_y': 1}
             on_press:
                 root.return_to_main()
 
+<activity_timer>:
+    screen_manager: self.screen_manager
+    name:'activitytimer'
+    BoxLayout: 
+        orientation:"vertical"
+        MDLabel
+            id:timer_Display
+            font_style:"H2"
+            text:"00:00:00"
+            halign:"center"
+            pos_hint:{"center_x":0.5,"center_y":.2}
+        MDIconButton:
+            id:pausePlay
+            user_font_size:"128sp"
+            pos_hint:{"center_x":0.5,"center_y":.6}
+            on_press: root.toggle_Pause_State()
+        MDIconButton:
+            id:stopActivity
+            user_font_size:"72sp"
+            pos_hint:{"center_x":0.7,"center_y":0.8}
+            on_press: root.save_activity()
+        MDRaisedButton:
+            text:"Cancel" 
+            user_font_size:"64sp"
+            pos_hint:{"center_x": .2,"center_y":.8}
+            on_press:root.return_to_main()
