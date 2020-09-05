@@ -7,7 +7,9 @@ from kivymd.uix.list import ThreeLineListItem, MDList
 from kivy.lang import Builder
 from kivy.clock import Clock
 import datetime
+import sqlite3
 
+DB_conn= sqlite3.connect("TimeStorage.db")
 
 
 class Main_info(Screen):
@@ -24,6 +26,10 @@ class Main_info(Screen):
         Clock.schedule_once(self.Init_TimeLine,1)
 
     def Init_TimeLine(self, dt):
+        global DB_conn 
+        
+        DB_conn= sqlite3.connect("TimeStorage.db")
+        DB_conn.cursor.execute("""CREATE TABLE timetable (task_id PRIMARYKEY TEXT AUTOINCREMENT,task_name text , task_type text ,timeSpent text, date text, timeStart text, timeEnd text, project_name text, project_ID text)""")
         self.testdata = [dict() for x in range(2)]    
         self.testdata[0] = {"name": "test 1", "type":"programming","timeSpent":"08:30:00", "date":"22/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
         self.testdata[1] = {"name": "test 2","type":"programming","timeSpent":"08:30:00", "date":"21/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
