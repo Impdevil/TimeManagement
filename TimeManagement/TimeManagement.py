@@ -21,37 +21,69 @@ class Main_info(Screen):
 
     
     def uxids_dict_add(self,uxobjects):
+        global DB_conn
         print (self.name + " uxObjects " + str(uxobjects))
         self.avalible_screens = uxobjects
-        Clock.schedule_once(self.Init_TimeLine,1)
+
+        try:
+            DB_conn= sqlite3.connect("TimeStorage.db")
+        except:
+            print("failed table creation")
+        try:
+            DB_conn.cursor().execute("""CREATE TABLE timetable (task_id INTEGER PRIMARY KEY  AUTOINCREMENT,task_name text , task_type text ,timeSpent text, date text, timeStart text, timeEnd text, project_name text, project_ID text)""")
+        except:
+            print("timetable already exists")
+
+        Clock.schedule_once(self.Init_TimeLine,0.1)
 
     def Init_TimeLine(self, dt):
-        global DB_conn 
-        
-        DB_conn= sqlite3.connect("TimeStorage.db")
-        DB_conn.cursor.execute("""CREATE TABLE timetable (task_id PRIMARYKEY TEXT AUTOINCREMENT,task_name text , task_type text ,timeSpent text, date text, timeStart text, timeEnd text, project_name text, project_ID text)""")
+        global DB_conn
+        print("init timeline @ " + str(dt))
+        cu = DB_conn.cursor()
+        cu.execute("""SELECT * FROM timetable WHERE task_name='' """)
+        self.storedData = cu.fetchall()
+        print(self.storedData)
+        print()
         self.testdata = [dict() for x in range(2)]    
         self.testdata[0] = {"name": "test 1", "type":"programming","timeSpent":"08:30:00", "date":"22/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
         self.testdata[1] = {"name": "test 2","type":"programming","timeSpent":"08:30:00", "date":"21/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
 
-        self.update_Timeline(dt,None)
+        self.Update_Timeline(None)
 
 
-    def update_Timeline(self,dt, new_data):
-        
-        print("updating timeline @ " + str(dt))
+    def Update_Timeline(self, new_data):
+        global DB_conn
+
         #try:
         if new_data != None:
+            timeEnd = datetime.datetime.now()
+            timeEnd = timeEnd.strftime("%H:%M")
             print(str(self.testdata) + " | new data :"  + str(new_data))
-            addingData = {"name" : new_data["name"], "type": new_data["type"],"project": new_data["project"],"date":new_data["date"], "timeStart":new_data["timeStart"],"timeEnd":datetime.time, "timeSpent":new_data["timeSpent"]}
+            addingData = {"name" : new_data["name"], "type": new_data["type"],"project": new_data["project"],"date":new_data["date"], "timeStart":new_data["timeStart"],"timeEnd":timeEnd, "timeSpent":new_data["timeSpent"]}
             print(str(addingData) + " || added too"+str(self.testdata))
             self.testdata.append(addingData)
+            self.storedData.append(addingData)
+            sql = ("INSERT INTO timetable(task_name, task_type,project_name, date, timeStart, timeEnd, timeSpent) VALUES (")
+            
+            for i in addingData.keys():
+                sql = sql +"'"+ str(addingData[i]) + "'"
+                if i != list(addingData.keys())[-1]:
+                    sql = sql + ", "
+            sql = sql + ")"
+            print(sql)
+            DB_conn.cursor().execute(sql)
+            DB_conn.commit()
         else:
             print("no new data")
         #if self.parent.parent.ids.get("past_items") == True:
         listedItems = self.ids.past_items
         listedItems.clear_widgets()
         for i in self.testdata:
+            listedItems.add_widget(ThreeLineListItem(text=(str(i["name"]) + " | timespent: " + str(i["timeSpent"])),
+                secondary_text=("type: "+ i["type"]+" | date: "+ str(i["date"]) + "| start time: " + i["timeStart"] ),
+                tertiary_text=("Project: " + i["project"])))
+            print(i)
+        for i in self.storedData:
             listedItems.add_widget(ThreeLineListItem(text=(str(i["name"]) + " | timespent: " + str(i["timeSpent"])),
                 secondary_text=("type: "+ i["type"]+" | date: "+ str(i["date"]) + "| start time: " + i["timeStart"] ),
                 tertiary_text=("Project: " + i["project"])))
@@ -93,7 +125,7 @@ class sub_new_activity(Screen):
     def start_timer(self):
         timeStart = datetime.datetime.now()
         dateStart = timeStart.strftime("%d/%m/%Y")
-        timeStart = timeStart.strftime("%H:%M")
+        timeStart = timeStart.strftime("%H:%M:%S")
         activityDict = {"name":self.ids.TF_Name.text,"project":self.ids.TF_ProjectName.text,"type":self.ids.TF_WorkType.text,"timeSpent" : "","timeStart":str(timeStart), "date": str(dateStart)}
         print("Start" + str(activityDict))
         self.parent.switch_to(screens[2],transition=SwapTransition(),direction="right")
@@ -152,7 +184,7 @@ class activity_timer(Screen):
         self.currPauseState = True
         self.clockEvent.cancel()
         self.activityDict["timeSpent"] = str(datetime.timedelta(0,int(self.timer)))
-        self.avalibleScreens[0].update_Timeline(0,self.activityDict)
+        self.avalibleScreens[0].Update_Timeline(self.activityDict)
 
         self.parent.switch_to(screens[0])
         
