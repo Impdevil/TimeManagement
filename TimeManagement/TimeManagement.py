@@ -40,13 +40,10 @@ class Main_info(Screen):
         global DB_conn
         print("init timeline @ " + str(dt))
         cu = DB_conn.cursor()
-        cu.execute("""SELECT * FROM timetable WHERE task_name='' """)
-        self.storedData = cu.fetchall()
-        print(self.storedData)
+        cu.execute("""SELECT task_name, timeSpent, task_type, date, timeStart, project_name FROM timetable""")
+        self.displayData = cu.fetchall()
+        print(self.displayData)
         print()
-        self.testdata = [dict() for x in range(2)]    
-        self.testdata[0] = {"name": "test 1", "type":"programming","timeSpent":"08:30:00", "date":"22/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
-        self.testdata[1] = {"name": "test 2","type":"programming","timeSpent":"08:30:00", "date":"21/08/2020", "timeStart":"11:30", "timeEnd":"22:00", "project":""}
 
         self.Update_Timeline(None)
 
@@ -58,13 +55,15 @@ class Main_info(Screen):
         if new_data != None:
             timeEnd = datetime.datetime.now()
             timeEnd = timeEnd.strftime("%H:%M")
-            print(str(self.testdata) + " | new data :"  + str(new_data))
-            addingData = {"name" : new_data["name"], "type": new_data["type"],"project": new_data["project"],"date":new_data["date"], "timeStart":new_data["timeStart"],"timeEnd":timeEnd, "timeSpent":new_data["timeSpent"]}
-            print(str(addingData) + " || added too"+str(self.testdata))
-            self.testdata.append(addingData)
-            self.storedData.append(addingData)
+            print(str(self.displayData) + " | new data :"  + str(new_data))
+            addingData = {"name" : new_data["name"], "type": new_data["type"],"project": new_data["project"],
+                          "date":new_data["date"], "timeStart":new_data["timeStart"],
+                          "timeEnd":timeEnd, "timeSpent":new_data["timeSpent"]}
+            print(str(addingData) + " || added too"+str(self.displayData))
+            self.displayData.append([addingData["name"],addingData["timeSpent"],
+                                     addingData["type"],addingData["date"],
+                                     addingData["timeStart"],addingData["project"]])
             sql = ("INSERT INTO timetable(task_name, task_type,project_name, date, timeStart, timeEnd, timeSpent) VALUES (")
-            
             for i in addingData.keys():
                 sql = sql +"'"+ str(addingData[i]) + "'"
                 if i != list(addingData.keys())[-1]:
@@ -78,15 +77,10 @@ class Main_info(Screen):
         #if self.parent.parent.ids.get("past_items") == True:
         listedItems = self.ids.past_items
         listedItems.clear_widgets()
-        for i in self.testdata:
-            listedItems.add_widget(ThreeLineListItem(text=(str(i["name"]) + " | timespent: " + str(i["timeSpent"])),
-                secondary_text=("type: "+ i["type"]+" | date: "+ str(i["date"]) + "| start time: " + i["timeStart"] ),
-                tertiary_text=("Project: " + i["project"])))
-            print(i)
-        for i in self.storedData:
-            listedItems.add_widget(ThreeLineListItem(text=(str(i["name"]) + " | timespent: " + str(i["timeSpent"])),
-                secondary_text=("type: "+ i["type"]+" | date: "+ str(i["date"]) + "| start time: " + i["timeStart"] ),
-                tertiary_text=("Project: " + i["project"])))
+        for i in self.displayData:
+            listedItems.add_widget(ThreeLineListItem(text=(str(i[0]) + " | timespent: " + str(i[1])),
+                secondary_text=("type: "+ i[2]+" | date: "+ str(i[3]) + "| start time: " + i[4] ),
+                tertiary_text=("Project: " + i[5])))
             print(i)
 
             #else: 

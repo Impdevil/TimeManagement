@@ -342,3 +342,4 @@ TimeManagement/previews.py
 TimeManagement/none.py
 TimeManagement/.vscode/launch.json
 TimeManagement/vsc.code-workspace
+*.db
